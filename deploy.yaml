@@ -22,13 +22,43 @@ spec:
         app.kubernetes.io/instance: az-dns-forwarder
         app.kubernetes.io/name: az-dns-forwarder
     spec:
+      automountServiceAccountToken: false
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/os
+                    operator: In
+                    values:
+                      - linux
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/instance
+                      operator: In
+                      values:
+                        - az-dns-forwarder
+                topologyKey: kubernetes.io/hostname
+              weight: 100
       containers:
         - image: ghcr.io/bonddim/az-dns-forwarder:latest
           name: az-dns-forwarder
           ports:
             - containerPort: 53
               protocol: UDP
-          resources: {}
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+              ephemeral-storage: 50Mi
+            requests:
+              cpu: 5m
+              memory: 32Mi
+              ephemeral-storage: 50Mi
+
 ---
 apiVersion: v1
 kind: Service
