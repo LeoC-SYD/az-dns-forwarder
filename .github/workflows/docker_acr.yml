@@ -33,7 +33,7 @@ jobs:
           registry: crdnsfprdfrc001.azurecr.io
           username: ${{ vars.AZURE_CLIENT_ID }}
           password: ${{ secrets.AZURE_CLIENT_SECRET }}
-
+      
       - uses: docker/build-push-action@v6.15.0
         name: Build and push Docker images
         with:
@@ -42,4 +42,6 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name == 'push' }}
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: |
+            crdnsfprdfrc001.azurecr.io/${{ github.repository }}:latest
+            crdnsfprdfrc001.azurecr.io/${{ github.repository }}:${{ github.sha }}
